@@ -39,11 +39,10 @@ function render(){
   headerCampus.hidden=!inner||!app.campus;
   headerCampus.textContent=app.campus?campusName(app.campus):'';
   back.hidden=app.view==='campus';
-  document.getElementById('homeMark').hidden=!back.hidden;
   document.getElementById('menuSubjects').disabled=!app.campus;
   stage.dataset.view=app.view;
   if(app.view==='campus'){
-    stage.innerHTML=`<section class="campus-screen"><div class="screen-heading yellow"><span class="eyebrow">DISPOSITIVOS CIAC · USM</span><h1 tabindex="-1">¿Cuál es tu campus?</h1></div>${['vitacura','sanjoaquin'].map((c,i)=>`<button class="campus-btn ${i?'blue':'cyan'}" data-campus="${c}"><span class="campus-art" aria-hidden="true">${i?'SJ':'V'}</span><span class="campus-label"><span><small>CAMPUS</small><strong>${campusName(c)}</strong></span><span class="arrow-round" aria-hidden="true">${arrowUpRight}</span></span></button>`).join('')}</section>`;
+    stage.innerHTML=`<section class="campus-screen"><div class="screen-heading yellow"><span class="eyebrow">DISPOSITIVOS DATA-E SANTIAGO</span><h1 tabindex="-1">¿Cuál es tu campus?</h1></div>${['vitacura','sanjoaquin'].map((c,i)=>`<button class="campus-btn ${i?'blue':'cyan'}" data-campus="${c}"><span class="campus-art" aria-hidden="true">${i?'SJ':'V'}</span><span class="campus-label"><span><small>CAMPUS</small><strong>${campusName(c)}</strong></span><span class="arrow-round" aria-hidden="true">${arrowUpRight}</span></span></button>`).join('')}</section>`;
   }else if(app.view==='subjects'){
     stage.innerHTML=`<section class="screen"><div class="screen-heading cyan">${crumbs()}<h1 tabindex="-1">¿En qué ramo necesitas ayuda?</h1></div><div class="search-wrap"><label class="search-field">${icon('search')}<input id="subjectSearch" type="search" autocomplete="off" placeholder="Busca el código de tu ramo" aria-label="Buscar código de asignatura"></label></div><div class="scroll-area subject-list" id="subjectList">${codeList(app.campus).map(code=>`<button class="subject-btn" data-subject="${code}"><strong>${code}</strong><span aria-hidden="true">${arrowUpRight}</span></button>`).join('')}<p id="empty" hidden>No encontramos ese código entre las asignaturas de los documentos.</p></div></section>`;
     document.getElementById('subjectSearch').value=app.query;
