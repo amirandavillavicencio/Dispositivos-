@@ -17,7 +17,10 @@ export async function onRequest({ request }) {
     if (value) headers.set(name, value)
   }
 
-  // Permite servir recursos desde el proyecto de origen sin activar su redirección pública.\n  headers.set('x-datae-unified-proxy', '1')\n\n  const response = await fetch(target, { method: request.method, headers, redirect: 'manual' })
+  // Permite servir recursos desde el proyecto de origen sin activar su redirección pública.
+  headers.set('x-datae-unified-proxy', '1')
+
+  const response = await fetch(target, { method: request.method, headers, redirect: 'manual' })
 
   // No copiar cookies del dominio de origen al dominio público.
   const responseHeaders = new Headers(response.headers)
