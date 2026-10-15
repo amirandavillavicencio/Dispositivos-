@@ -13,7 +13,7 @@ const campusName=k=>k==='vitacura'?'Vitacura':'San Joaquín';
 const icon=id=>`<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const colors={campus:'#FFCB05',subjects:'#00B5D8',results:'#FFCB05',info:'#FFFFFF'};
 const classes={consultation:'blue',reinforcement:'orange',mentorship:'cyan',tpi:'pink'};
-const crumbs=()=>`<div class="crumbs"><button data-nav="campus">${campusName(app.campus)} ↶</button>${app.view==='results'?`<button data-nav="subjects">${app.subject} ↶</button>`:''}</div>`;
+const crumbs=()=>app.view==='results'?`<div class="crumbs"><button data-nav="subjects">${app.subject} ↶</button></div>`:'';
 function details(device){
         const items=appointments(device,app.campus,app.subject);
         const signup=device==='mentorship'||device==='tpi';
@@ -31,6 +31,12 @@ const signupAction=contact?`<div class="signup-action"><p><strong>Inscripción:<
 return `${notice}<p class="device-description">${desc[device]}</p>${device==='consultation'?'<p class="device-description">Todos los tutores pueden ayudarte con las asignaturas básicas de Matemática y Física.</p>':''}${signupAction}<div class="results">${cards}</div>`;
 }
 function render(){
+  const inner=app.view!=='campus';
+  document.querySelector('.app-shell').classList.toggle('inner-view',inner);
+  document.querySelector('.brand').hidden=inner;
+  const headerCampus=document.getElementById('headerCampus');
+  headerCampus.hidden=!inner||!app.campus;
+  headerCampus.textContent=app.campus?campusName(app.campus):'';
   back.hidden=app.view==='campus';
   document.getElementById('homeMark').hidden=!back.hidden;
   document.getElementById('menuSubjects').disabled=!app.campus;

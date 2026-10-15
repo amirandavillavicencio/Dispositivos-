@@ -8,3 +8,11 @@
 @media(max-height:540px){.screen-heading{padding-top:12px;padding-bottom:12px}.screen-heading h1{font-size:26px}.eyebrow{margin-bottom:6px}.campus-btn{min-height:80px}.campus-label{padding:12px 20px}.campus-label strong{font-size:27px}.campus-art{font-size:130px}.crumbs{margin-bottom:8px}.compact h1{font-size:25px}.search-wrap{padding-bottom:8px}.device-btn{min-height:85px;padding-top:16px;padding-bottom:16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important}}
 .signup-action{padding-bottom:20px}.signup-action .email-cta{background:white;color:var(--ink);border:2px solid var(--ink)}
+
+.inner-view{--bar:calc(48px + env(safe-area-inset-top,0px))}
+.inner-view .notch{width:56px;background:transparent;color:white;padding-left:4px;font-size:24px}
+.inner-view .notch button{width:48px;height:44px;font-size:26px}
+#headerCampus{flex:1;min-width:0;display:flex;align-items:center;padding-left:8px;font-size:16px;font-weight:700}
+.inner-view #menuButton{width:52px;padding:14px}
+#stage[data-view="subjects"] .screen-heading{padding-top:14px;padding-bottom:14px}
+#stage[data-view="subjects"] h1{font-size:clamp(22px,5.5vw,30px);line-height:1.12;text-wrap:initial}
