@@ -11,7 +11,7 @@ const menu=document.getElementById('menu');
 const menuButton=document.getElementById('menuButton');
 const campusName=k=>k==='vitacura'?'Vitacura':'San Joaquín';
 const icon=id=>`<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
-const colors={campus:'#FFCB05',subjects:'#00B5D8',results:'#FFCB05',info:'#FFFFFF'};
+const colors={campus:'var(--yellow)',subjects:'var(--green)',results:'var(--yellow)',info:'var(--paper)'};
 const classes={consultation:'blue',reinforcement:'orange',mentorship:'cyan',tpi:'pink'};
 const crumbs=()=>app.view==='results'?`<div class="crumbs"><button data-nav="subjects">${app.subject} ↶</button></div>`:'';
 function details(device){
