@@ -12,7 +12,7 @@
 .inner-view{--bar:calc(48px + env(safe-area-inset-top,0px))}
 .inner-view .notch{width:56px;background:transparent;color:white;padding-left:4px;font-size:24px}
 .inner-view .notch button{width:48px;height:44px;font-size:26px}
-#headerCampus{flex:1;min-width:0;display:flex;align-items:center;padding-left:8px;font-size:16px;font-weight:700}
+#headerCampus{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;font-size:16px;font-weight:700}
 .inner-view #menuButton{width:52px;padding:14px}
 #stage[data-view="subjects"] .screen-heading{padding-top:14px;padding-bottom:14px}
 #stage[data-view="subjects"] h1{font-size:clamp(22px,5.5vw,30px);line-height:1.12;text-wrap:initial}
