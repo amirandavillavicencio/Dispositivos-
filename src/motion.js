@@ -7,10 +7,10 @@ function run(target,frames,options={}){
   active.add(control);control.then(()=>active.delete(control));return control;
 }
 preference.addEventListener('change',()=>{active.forEach(c=>c.complete());active.clear()});
-export function enter(container){
+export function enter(container,startDelay=0){
   if(reduced())return;
   const elements=[...container.querySelectorAll('.campus-btn,.subject-btn,.device')].slice(0,9);
-  if(elements.length)run(elements,{opacity:[0,1],y:[12,0]},{duration:.22,delay:stagger(.025)});
+  if(elements.length)run(elements,{opacity:[0,1],y:[12,0]},{duration:.22,delay:stagger(.025,{startDelay})});
 }
 export async function transition(stage,render,color,event){
   const flood=document.getElementById('flood');
@@ -24,9 +24,10 @@ export async function transition(stage,render,color,event){
   stage.setAttribute('aria-busy','true');
   try{
     await run(flood,{clipPath:[`circle(0px at ${x}px ${y}px)`,`circle(${radius}px at ${x}px ${y}px)`]},{duration:.34});
-    render();enter(stage);
+    const fadeDuration=.16;
+    render();enter(stage,fadeDuration);
     stage.querySelector('h1,h2')?.focus({preventScroll:true});
-    await run(flood,{opacity:[1,0]},{duration:.16});
+    await run(flood,{opacity:[1,0]},{duration:fadeDuration});
   }finally{flood.hidden=true;stage.removeAttribute('aria-busy')}
 }
 const panelControls=new WeakMap();
