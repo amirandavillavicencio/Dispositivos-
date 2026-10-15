@@ -1,80 +1,56 @@
-import { animate, stagger, inView } from 'motion';
-
-const preference = matchMedia('(prefers-reduced-motion: reduce)');
-export const reduced = () => preference.matches;
-const ease = [0.22, 1, 0.36, 1];
-const active = new Set();
-function run(target, frames, options = {}) {
-  const control = animate(target, frames, { duration: reduced() ? 0 : .28, ease, ...options });
-  active.add(control);
-  control.then(() => active.delete(control));
-  return control;
+import {animate, stagger} from 'motion';
+const preference=matchMedia('(prefers-reduced-motion: reduce)');
+export const reduced=()=>preference.matches;
+const active=new Set();
+function run(target,frames,options={}){
+  const control=animate(target,frames,{ease:[.22,1,.36,1],...options,duration:reduced()?0:(options.duration??.24)});
+  active.add(control);control.then(()=>active.delete(control));return control;
 }
-preference.addEventListener('change', () => {
-  active.forEach(control => control.complete());
-  active.clear();
-});
-export function animateProgress(step) {
-  if (reduced()) { document.getElementById('progressFill').style.transform = `scaleX(${step / 4})`; return; }
-  run('#progressFill', { scaleX: step / 4 });
+preference.addEventListener('change',()=>{active.forEach(c=>c.complete());active.clear()});
+export function enter(container){
+  if(reduced())return;
+  const elements=[...container.querySelectorAll('.campus-btn,.subject-btn,.device')].slice(0,9);
+  if(elements.length)run(elements,{opacity:[0,1],y:[12,0]},{duration:.22,delay:stagger(.025)});
 }
-export function enter(container) {
-  if (reduced()) return;
-  const cards = [...container.querySelectorAll('.campus-btn,.subject-btn,.device-btn,.result')];
-  if (cards.length) run(cards, { opacity: [0, 1], y: [12, 0] }, { duration: .26, delay: stagger(Math.min(.045, .18 / cards.length)) });
-  const selected = container.querySelector('[aria-pressed="true"]');
-  if (selected) run(selected, { scale: [.96, 1] });
+export async function transition(stage,render,color,event){
+  const flood=document.getElementById('flood');
+  if(reduced()){render();stage.querySelector('h1,h2')?.focus({preventScroll:true});return}
+  const bounds=stage.getBoundingClientRect();
+  const target=event?.target?.closest('button,a')?.getBoundingClientRect();
+  const x=event?.detail?event.clientX-bounds.left:(target?target.left+target.width/2-bounds.left:bounds.width/2);
+  const y=event?.detail?event.clientY-bounds.top:(target?target.top+target.height/2-bounds.top:0);
+  const radius=Math.hypot(Math.max(Math.abs(x),Math.abs(bounds.width-x)),Math.max(Math.abs(y),Math.abs(bounds.height-y)))+10;
+  flood.style.background=color;flood.hidden=false;flood.style.opacity='1';
+  stage.setAttribute('aria-busy','true');
+  try{
+    await run(flood,{clipPath:[`circle(0px at ${x}px ${y}px)`,`circle(${radius}px at ${x}px ${y}px)`]},{duration:.34});
+    render();enter(stage);
+    stage.querySelector('h1,h2')?.focus({preventScroll:true});
+    await run(flood,{opacity:[1,0]},{duration:.16});
+  }finally{flood.hidden=true;stage.removeAttribute('aria-busy')}
 }
-let previousStep = 1;
-let generation = 0;
-export function transition(stage, render, step) {
-  const serial = ++generation;
-  stage.querySelectorAll('.outgoing').forEach(el => el.remove());
-  const old = stage.querySelector('.stage-inner');
-  const direction = step >= previousStep ? 1 : -1;
-  previousStep = step;
-  render();
-  const current = stage.querySelector('.stage-inner');
-  if (!reduced()) {
-    if (old) {
-      old.classList.add('outgoing');
-      old.inert = true;
-      old.setAttribute('aria-hidden', 'true');
-      old.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-      stage.append(old);
-      run(old, { opacity: [1, 0], x: [0, -12 * direction] }, { duration: .14 }).then(() => old.remove());
-    }
-    run(current, { opacity: [0, 1], x: [20 * direction, 0] }, { duration: .28 });
-    enter(current);
-  }
-  current.querySelector('h2')?.focus({ preventScroll: true });
-  const finder = document.getElementById('buscador');
-  if (finder.getBoundingClientRect().top < 0 || finder.getBoundingClientRect().top > innerHeight / 3) {
-    finder.scrollIntoView({ behavior: reduced() ? 'instant' : 'smooth', block: 'start' });
-  }
-  requestAnimationFrame(() => { if (generation === serial) stage.removeAttribute('aria-busy'); });
+const panelControls=new WeakMap();
+export async function togglePanel(button,panel){
+  if(panelControls.has(panel))return;
+  const open=button.getAttribute('aria-expanded')!=='true';
+  button.setAttribute('aria-expanded',String(open));
+  panel.inert=!open;
+  panel.hidden=false;
+  const height=panel.scrollHeight;
+  panel.style.overflow='hidden';
+  const control=run(panel,{height:open?[0,height]:[height,0],opacity:open?[0,1]:[1,0]},{duration:.25});
+  panelControls.set(panel,control);
+  await control;
+  panel.hidden=!open;panel.style.height='';panel.style.opacity='';panel.style.overflow='';panelControls.delete(panel);
 }
-
-export function setupMotion() {
-  if (!reduced()) {
-    run('h1 .line', { opacity: [0, 1], y: [20, 0] }, { duration: .48, delay: stagger(.08) });
-    run('.mini-tile', { y: [0, -6, 0] }, { duration: 3.2, delay: stagger(.12) });
-  }
-  inView('.reveal', element => {
-    if (!reduced()) run(element, { opacity: [0, 1], y: [18, 0] }, { duration: .4 });
-  }, { amount: .12 });
-  const press = event => {
-    const target = event.target.closest('button,a.email-cta');
-    if (target && !reduced()) run(target, { scale: .97 }, { duration: .09 });
-  };
-  const release = () => {
-    if (!reduced()) document.querySelectorAll('button,a.email-cta').forEach(target => {
-      if (target.style.transform) run(target, { scale: 1 }, { duration: .18 });
-    });
-  };
-  document.addEventListener('pointerdown', press);
-  document.addEventListener('pointerup', release);
-  document.addEventListener('pointercancel', release);
-  document.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') press(event); });
-  document.addEventListener('keyup', release);
+let menuSerial=0;
+export async function menuMotion(menu,open){
+  const serial=++menuSerial;
+  menu.getAnimations().forEach(a=>a.cancel());
+  menu.inert=!open;menu.hidden=false;
+  await run(menu,{clipPath:open?['circle(0% at 100% 0%)','circle(150% at 100% 0%)']:['circle(150% at 100% 0%)','circle(0% at 100% 0%)']},{duration:.28});
+  if(serial===menuSerial)menu.hidden=!open;
+}
+export function setupMotion(){
+  document.addEventListener('pointerdown',event=>{const button=event.target.closest('button');if(button&&!reduced())run(button,{scale:[1,.985,1]},{duration:.16})});
 }
