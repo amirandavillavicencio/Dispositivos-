@@ -19,3 +19,7 @@ El menú vuelve inerte el contenido de fondo, contiene el foco y permite cerrar 
 `prefers-reduced-motion` elimina las duraciones, desplazamientos y entradas escalonadas. Cambiar la preferencia completa las animaciones activas. La lógica y la información son las mismas con movimiento reducido.
 
 El alto responde a `visualViewport` y a sus cambios por teclado virtual, con `100dvh` como respaldo. Cabecera y contenedor respetan las áreas seguras de iOS. La comprobación automatizada de WebKit no sustituye una revisión en Safari con un iPhone físico.
+
+En los cambios de pantalla, la entrada de los elementos espera los 160 ms del fundido circular antes de comenzar. Motion mantiene su estado inicial durante esa espera. La entrada inicial de la aplicación conserva su inicio inmediato; las duraciones y la separación entre elementos no cambian.
+
+Observación del 15 de octubre de 2026: el sitio publicado en https://dispositivos-ciac.pages.dev/ muestra «¿Qué necesitas?» después de seleccionar campus, mientras que `main` (`e0c929d`) pasa directamente a las asignaturas. Este ajuste no modifica la navegación ni resuelve esa diferencia.
