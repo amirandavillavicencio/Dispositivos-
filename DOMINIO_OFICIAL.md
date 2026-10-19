@@ -1,9 +1,19 @@
-# Dirección oficial: dispositivos-ciac.pages.dev
+# Sitios idénticos: Dispositivos CIAC y CIAC Horarios
 
-Este proyecto Cloudflare Pages conserva la URL `https://dispositivos-ciac.pages.dev/` como dirección pública.
+Los dos proyectos de Cloudflare Pages publican independientemente el **mismo repositorio y la misma rama**:
 
-La aplicación unificada DATA-E / CIAC se mantiene en el repositorio [ciac-vitacura](https://github.com/amirandavillavicencio/ciac-vitacura), desplegado originalmente en `https://ciachorarios.pages.dev/`.
+- Fuente única: `amirandavillavicencio/Dispositivos-`, rama `main`.
+- Original: https://dispositivos-ciac.pages.dev/
+- Réplica: https://ciachorarios.pages.dev/
+- Compilación en ambos proyectos: `npm ci && npm run build`.
+- Archivos compilados: `dist`; Cloudflare Pages Functions locales en `functions/`.
 
-La función `functions/[[path]].js` sirve la aplicación de ese proyecto sin duplicar el código, las guías ni los horarios. Se conserva la ruta y los parámetros de la URL, incluidas las vistas profundas.
+La función `functions/[[path]].js` sirve los archivos **del propio proyecto** mediante `context.next()`. No consulta al otro dominio, no redirige, no usa iframe ni introduce diferencias en los componentes visuales, los horarios o la navegación.
 
-Para actualizar la aplicación unificada, editar `ciac-vitacura`. El acceso oficial se actualizará al publicarse ese proyecto. No eliminar el proyecto de origen mientras exista este enlace.
+## Verificación y publicación
+
+Cada actualización fusionada en `main` debe activar un despliegue `github:push` en **ambos** proyectos. Verificar que ambos despliegues terminen correctamente y utilicen el mismo SHA de commit. Las rutas profundas y los recursos `/assets/*` deben devolver el contenido del proyecto correspondiente sin saltar al otro dominio.
+
+Si alguno de los dos sitios deja de recibir pushes de GitHub, revisar la integración Git de Cloudflare; **no** implementar un proxy recíproco como solución. La compatibilidad de métodos HTTP se comprueba con `npm test`.
+
+**Invariante:** el código de UI (`index.html`, `src/`) y los datos de horarios son comunes; este cambio de publicación no modifica su contenido.
