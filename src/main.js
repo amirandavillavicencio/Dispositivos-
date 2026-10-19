@@ -1,4 +1,5 @@
 import {codeList, appointments, specialistFor} from './catalog.js';
+import {campusTimetable} from './schedule.js';
 import {specs, labels, desc, contacts} from './data.js';
 import {info} from './info.js';
 import {transition, enter, togglePanel, menuMotion, setupMotion} from './motion.js';
@@ -12,7 +13,7 @@ const menuButton=document.getElementById('menuButton');
 const campusName=k=>k==='vitacura'?'Vitacura':'San Joaquín';
 const icon=id=>`<svg aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const arrowUpRight=icon('arrow-up-right');
-const colors={campus:'#F7AE00',subjects:'#00B5D8',results:'#F7AE00',info:'#FFFFFF'};
+const colors={campus:'#F7AE00',schedule:'#D9F99D',subjects:'#00B5D8',results:'#F7AE00',info:'#FFFFFF'};
 const classes={consultation:'blue',reinforcement:'orange',mentorship:'cyan',tpi:'pink'};
 const crumbs=()=>app.view==='results'?`<div class="crumbs"><button data-nav="subjects">${app.subject} ↶</button></div>`:'';
 function details(device){
@@ -31,6 +32,45 @@ function details(device){
 const signupAction=contact?`<div class="signup-action"><p><strong>Inscripción:</strong> ${contact.name}</p><a class="email-cta" href="mailto:${contact.email}?subject=${encodeURIComponent('Inscripción '+labels[device]+' - '+app.subject+' - '+campusName(app.campus))}">SOLICITAR INSCRIPCIÓN ${arrowUpRight}</a></div>`:'';
 return `${notice}<p class="device-description">${desc[device]}</p>${device==='consultation'?'<p class="device-description">Todos los tutores pueden ayudarte con las asignaturas básicas de Matemática y Física.</p>':''}${signupAction}<div class="results">${cards}</div>`;
 }
+
+function timetableCard(row, device) {
+  const details = [
+    row.subject ? `<p><strong>Asignatura${device === 'tpi' && row.subject.includes(',') ? 's' : ''}:</strong> ${row.subject}</p>` : '',
+    row.room ? `<p><strong>Lugar:</strong> ${row.room}</p>` : '',
+    row.block ? `<p><strong>Bloques:</strong> ${row.block}</p>` : '',
+    row.mode ? `<p><strong>Modalidad:</strong> ${row.mode}</p>` : '',
+    device === 'mentorship' || device === 'tpi' ? '<p><strong>Inscripción previa requerida.</strong></p>' : '',
+    row.questionable ? '<p><strong>Horario por confirmar:</strong> el tramo publicado en la planilla presenta una inconsistencia.</p>' : '',
+    row.url ? `<p><a class="email-cta" href="${row.url}" target="_blank" rel="noopener noreferrer">Abrir sesión en Teams ${arrowUpRight}</a></p>` : '',
+  ].join('');
+  return `<article class="result"><div class="result-heading"><span class="result-name">${row.day} · ${row.time || 'Horario por confirmar'}</span><span class="result-meta">${row.tutor}</span></div><div class="result-body">${details}</div></article>`;
+}
+
+function renderTimetable() {
+  const sections = campusTimetable(app.campus);
+  return `<section class="screen schedule-screen">
+    <div class="screen-heading yellow compact">
+      <span class="eyebrow">${campusName(app.campus).toUpperCase()} · SEMESTRE 2026-2</span>
+      <h1 tabindex="-1">Horarios del CIAC</h1>
+      <p class="schedule-lead">Revisa todos los apoyos disponibles en tu campus, sin elegir primero una asignatura.</p>
+      <button class="schedule-find" data-nav="subjects">Buscar por asignatura ${arrowUpRight}</button>
+    </div>
+    <div class="scroll-area device-list">
+      ${sections.map(({device, rows}, i) => {
+        const id = `schedule-panel-${device}`;
+        const opened = i === 0;
+        return `<article class="device ${classes[device]}">
+          <h2><button class="device-btn" data-device="${device}" aria-expanded="${opened}" aria-controls="${id}">
+            ${icon(device === 'consultation' ? 'chat' : device === 'reinforcement' ? 'book' : 'users')}
+            <span><strong>${labels[device]}</strong><small>${rows.length} horario(s) en ${campusName(app.campus)}</small></span>
+            <span class="plus" aria-hidden="true">+</span>
+          </button></h2>
+          <div class="panel" id="${id}" ${opened ? '' : 'hidden'}><div class="results">${rows.map(row => timetableCard(row, device)).join('')}</div></div>
+        </article>`;
+      }).join('')}
+    </div>
+  </section>`;
+}
 function render(){
   const inner=app.view!=='campus';
   document.querySelector('.app-shell').classList.toggle('inner-view',inner);
@@ -40,9 +80,12 @@ function render(){
   headerCampus.textContent=app.campus?campusName(app.campus):'';
   back.hidden=app.view==='campus';
   document.getElementById('menuSubjects').disabled=!app.campus;
+  document.getElementById('menuSchedules').disabled=!app.campus;
   stage.dataset.view=app.view;
   if(app.view==='campus'){
     stage.innerHTML=`<section class="campus-screen"><div class="screen-heading yellow"><span class="eyebrow">DISPOSITIVOS DATA-E SANTIAGO</span><h1 tabindex="-1">¿Cuál es tu campus?</h1></div>${['vitacura','sanjoaquin'].map((c,i)=>`<button class="campus-btn ${i?'blue':'cyan'}" data-campus="${c}"><span class="campus-art" aria-hidden="true">${i?'SJ':'V'}</span><span class="campus-label"><span><small>CAMPUS</small><strong>${campusName(c)}</strong></span><span class="arrow-round" aria-hidden="true">${arrowUpRight}</span></span></button>`).join('')}</section>`;
+  }else if(app.view==='schedule'){
+    stage.innerHTML=renderTimetable();
   }else if(app.view==='subjects'){
     stage.innerHTML=`<section class="screen"><div class="screen-heading cyan">${crumbs()}<h1 tabindex="-1">¿En qué ramo necesitas ayuda?</h1></div><div class="search-wrap"><label class="search-field">${icon('search')}<input id="subjectSearch" type="search" autocomplete="off" placeholder="Busca el código de tu ramo" aria-label="Buscar código de asignatura"></label></div><div class="scroll-area subject-list" id="subjectList">${codeList(app.campus).map(code=>`<button class="subject-btn" data-subject="${code}"><strong>${code}</strong><span aria-hidden="true">${arrowUpRight}</span></button>`).join('')}<p id="empty" hidden>No encontramos ese código entre las asignaturas de los documentos.</p></div></section>`;
     document.getElementById('subjectSearch').value=app.query;
@@ -79,14 +122,14 @@ function setMenu(open){
 }
 function goBack(event){
   if(app.view==='info')go(app.returnView,event);
-  else go(app.view==='results'?'subjects':'campus',event);
+  else go(app.view==='results'?'subjects':app.view==='subjects'?'schedule':'campus',event);
 }
 document.addEventListener('click',event=>{
   const button=event.target.closest('button,a.brand');if(!button||busy)return;
   if(button===menuButton){setMenu(button.getAttribute('aria-expanded')!=='true');return}
   if(button===back){goBack(event);return}
   if(button.matches('a.brand')){event.preventDefault();go('campus',event);return}
-  if(button.dataset.campus){go('subjects',event,()=>{app.campus=button.dataset.campus;app.subject=null;app.query=''});return}
+  if(button.dataset.campus){go('schedule',event,()=>{app.campus=button.dataset.campus;app.subject=null;app.query=''});return}
   if(button.dataset.subject){go('results',event,()=>{app.subject=button.dataset.subject});return}
   if(button.dataset.device){togglePanel(button,document.getElementById(button.getAttribute('aria-controls')));return}
   if(button.dataset.nav){go(button.dataset.nav,event);return}

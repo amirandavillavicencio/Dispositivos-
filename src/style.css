@@ -24,3 +24,20 @@
 .brand{flex-direction:column;align-items:flex-start;justify-content:center}
 .brand-title{display:block;line-height:1.05}
 .brand-credit{display:block;margin-top:4px;color:#C5C5C5;font-size:clamp(9px,2.3vw,11px);font-weight:500;letter-spacing:0;line-height:1.1;white-space:nowrap}
+
+/* Vista general de horarios del CIAC, disponible inmediatamente tras elegir campus. */
+.schedule-screen .screen-heading{padding-bottom:16px}
+.schedule-screen .eyebrow{margin-bottom:9px}
+.schedule-lead{font-size:14px;line-height:1.4;margin-top:10px;max-width:58ch}
+.schedule-find{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--ink);color:white;width:100%;text-align:left;font-weight:800;min-height:48px;padding:12px 16px;margin-top:14px}
+.schedule-find svg{width:20px;height:20px}
+.schedule-screen .device-btn{min-height:78px;padding-top:16px;padding-bottom:16px}
+.schedule-screen .device-btn strong{font-size:clamp(18px,5vw,24px)}
+.schedule-screen .device-btn small{margin-top:5px}
+.schedule-screen .results{gap:8px;padding-bottom:12px}
+.schedule-screen .result{padding:13px 16px}
+.schedule-screen .result-name{font-size:17px}
+.schedule-screen .result-meta{font-size:14px;margin-top:4px}
+.schedule-screen .result-body p{font-size:13px;margin-top:6px}
+.schedule-screen .result-body .email-cta{margin-top:7px}
+@media(min-width:700px){.schedule-screen .screen-heading{padding-left:32px;padding-right:32px}.schedule-find{max-width:350px}}
