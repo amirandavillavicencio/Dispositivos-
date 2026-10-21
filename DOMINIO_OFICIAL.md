@@ -1,19 +1,18 @@
-# Sitios idénticos: Dispositivos CIAC y CIAC Horarios
+# Dirección pública: Dispositivos CIAC
 
-Los dos proyectos de Cloudflare Pages publican independientemente el **mismo repositorio y la misma rama**:
+- URL conservada: https://dispositivos-ciac.pages.dev/
+- Proyecto Pages existente: `dispositivos-ciac`, conectado al repositorio `amirandavillavicencio/Dispositivos-`.
+- Fuente única de la **aplicación actualmente aprobada**: `amirandavillavicencio/ciac-vitacura`, desplegada en https://ciachorarios.pages.dev/.
 
-- Fuente única: `amirandavillavicencio/Dispositivos-`, rama `main`.
-- Original: https://dispositivos-ciac.pages.dev/
-- Réplica: https://ciachorarios.pages.dev/
-- Compilación en ambos proyectos: `npm ci && npm run build`.
-- Archivos compilados: `dist`; Cloudflare Pages Functions locales en `functions/`.
+## Publicación sin cambiar URL
 
-La función `functions/[[path]].js` sirve los archivos **del propio proyecto** mediante `context.next()`. No consulta al otro dominio, no redirige, no usa iframe ni introduce diferencias en los componentes visuales, los horarios o la navegación.
+La función Pages `functions/[[path]].js` sirve las respuestas de la aplicación vigente desde el origen anterior y conserva `dispositivos-ciac.pages.dev` en la barra de direcciones, incluidas rutas, parámetros y recursos estáticos. No devuelve redirecciones hacia el origen, no muestra un iframe, no copia horarios ni código académico y no altera el proyecto ciac-vitacura. Solo permite GET y HEAD y no transmite cookies de usuario.
 
-## Verificación y publicación
+Como hay dos repositorios y dos proyectos Pages diferentes, editar la aplicación de Dispositivos- no actualiza la aplicación real. Toda modificación de la UI y de los horarios debe realizarse en ciac-vitacura. El proyecto Dispositivos- únicamente mantiene este acceso público.
 
-Cada actualización fusionada en `main` debe activar un despliegue `github:push` en **ambos** proyectos. Verificar que ambos despliegues terminen correctamente y utilicen el mismo SHA de commit. Las rutas profundas y los recursos `/assets/*` deben devolver el contenido del proyecto correspondiente sin saltar al otro dominio.
+**Dependencia:** el origen `ciachorarios.pages.dev` debe permanecer accesible y funcional. Si está temporalmente inactivo, el sitio oficial devolverá 502 en vez de mostrar una aplicación anterior.
 
-Si alguno de los dos sitios deja de recibir pushes de GitHub, revisar la integración Git de Cloudflare; **no** implementar un proxy recíproco como solución. La compatibilidad de métodos HTTP se comprueba con `npm test`.
+## Comprobación
 
-**Invariante:** el código de UI (`index.html`, `src/`) y los datos de horarios son comunes; este cambio de publicación no modifica su contenido.
+- `npm test` comprueba rutas, recursos, parámetros, seguridad de encabezados, redirecciones internas y el error de origen.
+- Antes de fusionar y después de desplegar, abrir ambos dominios y confirmar visualmente el mismo inicio y las mismas pantallas, sin cambio de URL.
